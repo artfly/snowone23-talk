@@ -1,0 +1,123 @@
+Index: plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html b/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html
+new file mode 100644
+--- /dev/null	(date 1676970688881)
++++ b/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html	(date 1676970688881)
+@@ -0,0 +1,26 @@
++<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
++<html>
++<body>
++Reports <code>if</code> statements inside loops which can contain <code>break</code> inside and semantics won't change.
++<p><b>Example:</b></p>
++<pre><code>
++  boolean found = false;
++  for (int i : arr) {
++    if (i > 10) {
++      found = true;
++    }
++  }
++</code></pre>
++<p>Can be replaced with:</p>
++<pre><code>
++  boolean found = false;
++  for (int i : arr) {
++    if (i > 10) {
++      found = true;
++      break;
++    }
++  }
++</code></pre>
++<!-- tooltip end -->
++</body>
++</html>
+\ No newline at end of file
+Index: plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java
+new file mode 100644
+--- /dev/null	(date 1677125738377)
++++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java	(date 1677125738377)
+@@ -0,0 +1,17 @@
++// Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
++package com.siyeh.ig.performance;
++
++import com.intellij.psi.*;
++import com.intellij.util.ObjectUtils;
++import com.siyeh.InspectionGadgetsBundle;
++import com.siyeh.ig.BaseInspection;
++import com.siyeh.ig.BaseInspectionVisitor;
++import com.siyeh.ig.psiutils.ControlFlowUtils;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import static com.intellij.util.ObjectUtils.tryCast;
++
++public class NoBreakInIfInLoopInspection extends BaseInspection {
++
++}
+Index: plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml b/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml
+--- a/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	(revision 7d5e0f3abfdd6642070ed6c2b82abb978469ca7d)
++++ b/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	(date 1676970678425)
+@@ -1876,6 +1876,10 @@
+                      key="manual.array.to.collection.copy.display.name" groupBundle="messages.InspectionsBundle"
+                      groupKey="group.names.performance.issues" enabledByDefault="true" level="WARNING"
+                      implementationClass="com.siyeh.ig.performance.ManualArrayToCollectionCopyInspection" cleanupTool="true"/>
++    <localInspection groupPath="Java" language="JAVA" shortName="NoBreakInIfInLoop" bundle="messages.InspectionGadgetsBundle"
++                     key="no.break.in.if.in.loop.display.name" groupBundle="messages.InspectionsBundle"
++                     groupKey="group.names.performance.issues" enabledByDefault="true" level="WARNING"
++                     implementationClass="com.siyeh.ig.performance.NoBreakInIfInLoopInspection"/>
+     <localInspection groupPath="Java" language="JAVA" shortName="ManualArrayCopy" bundle="messages.InspectionGadgetsBundle" key="manual.array.copy.display.name"
+                      groupBundle="messages.InspectionsBundle" groupKey="group.names.performance.issues" enabledByDefault="true"
+                      level="WARNING" implementationClass="com.siyeh.ig.performance.ManualArrayCopyInspection" cleanupTool="true"/>
+@@ -1963,10 +1967,10 @@
+     <localInspection groupPath="Java" language="JAVA" shortName="ListRemoveInLoop" bundle="messages.InspectionGadgetsBundle" key="inspection.list.remove.in.loop.display.name"
+                      groupBundle="messages.InspectionsBundle" groupKey="group.names.performance.issues" enabledByDefault="true"
+                      level="WARNING" implementationClass="com.siyeh.ig.performance.ListRemoveInLoopInspection"/>
+-    <localInspection groupPath="Java" language="JAVA" shortName="IfStatementMissingBreakInLoop" bundle="messages.InspectionGadgetsBundle"
+-                     key="inspection.if.statement.missing.break.in.loop.name"
+-                     groupBundle="messages.InspectionsBundle" groupKey="group.names.performance.issues" enabledByDefault="true"
+-                     level="WARNING" implementationClass="com.siyeh.ig.performance.IfStatementMissingBreakInLoopInspection" cleanupTool="true"/>
++    <!--<localInspection groupPath="Java" language="JAVA" shortName="IfStatementMissingBreakInLoop" bundle="messages.InspectionGadgetsBundle"-->
++    <!--                 key="inspection.if.statement.missing.break.in.loop.name"-->
++    <!--                 groupBundle="messages.InspectionsBundle" groupKey="group.names.performance.issues" enabledByDefault="true"-->
++    <!--                 level="WARNING" implementationClass="com.siyeh.ig.performance.IfStatementMissingBreakInLoopInspection" cleanupTool="true"/>-->
+     <localInspection groupPath="Java" language="JAVA" shortName="AutoUnboxing" bundle="messages.InspectionGadgetsBundle" key="auto.unboxing.display.name"
+                      groupBundle="messages.InspectionsBundle" groupKey="group.names.performance.issues" enabledByDefault="false"
+                      level="WARNING" implementationClass="com.siyeh.ig.jdk.AutoUnboxingInspection"/>
+Index: plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties
+--- a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	(revision 7d5e0f3abfdd6642070ed6c2b82abb978469ca7d)
++++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	(date 1676970678382)
+@@ -610,6 +610,7 @@
+ cast.that.loses.precision.display.name=Numeric cast that loses precision
+ manual.array.copy.display.name=Manual array copy
+ manual.array.to.collection.copy.display.name=Manual array to collection copy
++no.break.in.if.in.loop.display.name=No break in if in loop
+ long.literals.ending.with.lowercase.l.display.name='long' literal ending with 'l' instead of 'L'
+ overly.complex.arithmetic.expression.display.name=Overly complex arithmetic expression
+ junit.abstract.test.class.naming.convention.element.description=Abstract test class
+@@ -2286,6 +2287,8 @@
+ inspection.if.statement.missing.break.in.loop.description=Loop can be terminated after condition is met
+ inspection.if.statement.missing.break.in.loop.quickfix=Add 'break'
+ 
++inspection.no.break.in.if.in.loop.description=Loop can be terminated inside 'if'
++
+ inspection.case.mismatch.display.name=Mismatched case in 'String' operation
+ inspection.case.mismatch.message.arg.is.lower=Method ''{0}()'' always returns {1}: the argument contains a lowercase symbol while the qualifier is uppercase-only
+ inspection.case.mismatch.message.arg.is.upper=Method ''{0}()'' always returns {1}: the argument contains an uppercase symbol while the qualifier is lowercase-only
