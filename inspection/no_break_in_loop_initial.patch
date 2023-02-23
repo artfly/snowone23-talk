@@ -1,12 +1,9 @@
 Index: plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
 ===================================================================
 diff --git a/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html b/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html
 new file mode 100644
---- /dev/null	(date 1676970688881)
-+++ b/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html	(date 1676970688881)
+--- /dev/null	
++++ b/plugins/InspectionGadgets/src/inspectionDescriptions/NoBreakInIfInLoop.html	
 @@ -0,0 +1,26 @@
 +<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
 +<html>
@@ -36,20 +33,17 @@ new file mode 100644
 +</html>
 \ No newline at end of file
 Index: plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java
-IDEA additional info:
-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
-<+>UTF-8
 ===================================================================
 diff --git a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java
 new file mode 100644
---- /dev/null	(date 1677125738377)
-+++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java	(date 1677125738377)
-@@ -0,0 +1,17 @@
+--- /dev/null	
++++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/src/com/siyeh/ig/performance/NoBreakInIfInLoopInspection.java	
+@@ -0,0 +1,39 @@
 +// Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 +package com.siyeh.ig.performance;
 +
-+import com.intellij.psi.*;
-+import com.intellij.util.ObjectUtils;
++import com.intellij.psi.PsiBlockStatement;
++import com.intellij.psi.PsiStatement;
 +import com.siyeh.InspectionGadgetsBundle;
 +import com.siyeh.ig.BaseInspection;
 +import com.siyeh.ig.BaseInspectionVisitor;
@@ -57,10 +51,32 @@ new file mode 100644
 +import org.jetbrains.annotations.NotNull;
 +import org.jetbrains.annotations.Nullable;
 +
-+import static com.intellij.util.ObjectUtils.tryCast;
-+
 +public class NoBreakInIfInLoopInspection extends BaseInspection {
 +
++  @Override
++  protected @NotNull String buildErrorString(Object... infos) {
++    return InspectionGadgetsBundle.message("no.break.in.if.in.loop.descriptor");
++  }
++
++  /*
++  for (..) { if_statement }
++  for (..) if_statement
++  if_statement := if (...) { assignment }
++  if_statement := if (...) assignment
++  assignment := var_ref = true;
++ */
++  @Override
++  public BaseInspectionVisitor buildVisitor() {
++  }
++
++  @Nullable
++  private static PsiStatement getOnlyStatement(@Nullable PsiStatement body) {
++    if (body == null) return null;
++    if (body instanceof PsiBlockStatement blockStatement) {
++      body = ControlFlowUtils.getOnlyStatementInBlock(blockStatement.getCodeBlock());
++    }
++    return body;
++  }
 +}
 Index: plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml
 IDEA additional info:
@@ -68,8 +84,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
 diff --git a/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml b/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml
---- a/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	(revision 7d5e0f3abfdd6642070ed6c2b82abb978469ca7d)
-+++ b/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	(date 1676970678425)
+--- a/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	
++++ b/plugins/InspectionGadgets/src/META-INF/InspectionGadgets.xml	
 @@ -1876,6 +1876,10 @@
                       key="manual.array.to.collection.copy.display.name" groupBundle="messages.InspectionsBundle"
                       groupKey="group.names.performance.issues" enabledByDefault="true" level="WARNING"
@@ -102,8 +118,8 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>ISO-8859-1
 ===================================================================
 diff --git a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties
---- a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	(revision 7d5e0f3abfdd6642070ed6c2b82abb978469ca7d)
-+++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	(date 1676970678382)
+--- a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	
++++ b/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messages/InspectionGadgetsBundle.properties	
 @@ -610,6 +610,7 @@
  cast.that.loses.precision.display.name=Numeric cast that loses precision
  manual.array.copy.display.name=Manual array copy
@@ -112,7 +128,15 @@ diff --git a/plugins/InspectionGadgets/InspectionGadgetsAnalysis/resources/messa
  long.literals.ending.with.lowercase.l.display.name='long' literal ending with 'l' instead of 'L'
  overly.complex.arithmetic.expression.display.name=Overly complex arithmetic expression
  junit.abstract.test.class.naming.convention.element.description=Abstract test class
-@@ -2286,6 +2287,8 @@
+@@ -1057,6 +1058,7 @@
+ string.equals.empty.string.problem.descriptor=<code>#ref("")</code> can be replaced with 'length()==0' #loc
+ string.equals.empty.string.is.empty.problem.descriptor=<code>#ref("")</code> can be replaced with 'isEmpty()' #loc
+ random.double.for.random.integer.problem.descriptor=Using <code>Random.#ref</code> to create random integer #loc
++no.break.in.if.in.loop.descriptor=No breaks!1!1!
+ manual.array.copy.problem.descriptor=Manual array copy #loc
+ manual.array.to.collection.copy.problem.descriptor=Manual array to collection copy #loc
+ call.to.simple.getter.in.class.problem.descriptor=Call to simple getter <code>#ref()</code> from within class #loc
+@@ -2286,6 +2288,8 @@
  inspection.if.statement.missing.break.in.loop.description=Loop can be terminated after condition is met
  inspection.if.statement.missing.break.in.loop.quickfix=Add 'break'
  
